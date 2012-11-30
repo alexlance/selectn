@@ -6,16 +6,16 @@ selectn_unique_select_id_counter = 1;
     init : function(options) { 
       this.each(function() {
 
-        // var select is the original <select> dropdown
+        // The <select> dropdown
         var select = $(this);
         var select_id = select.attr("id");
 
-        // Make sure the <select> dropdown has an id
+        // Give the <select> dropdown an id, if it is missing one
         if (!select_id) {
           select.attr("id","selectn-id-"+selectn_unique_select_id_counter++);
         }
 
-        // First make a label that is first displayed when page loads
+        // First make a label for the closed dropdown list
         var label = $("<span/>",{"class":"selectn-label", "data-select-id":select.attr("id")});
         label.width(select.width());
 
@@ -23,7 +23,7 @@ selectn_unique_select_id_counter = 1;
         methods.set_label(label, select);
         select.parent().append(label);
 
-        // Three extra buttons to quickly toggle between all, none and invert
+        // Three extra buttons for: all, none, and invert
         var op_all = $("<button/>",{"name":"all",   "type":"button","class":"selectn-button"}).text("all").get(0).outerHTML;
         var op_non = $("<button/>",{"name":"none",  "type":"button","class":"selectn-button"}).text("none").get(0).outerHTML;
         var op_inv = $("<button/>",{"name":"invert","type":"button","class":"selectn-button"}).text("toggle").get(0).outerHTML;
@@ -48,8 +48,6 @@ selectn_unique_select_id_counter = 1;
         label.click(function(){
           var p = $(this).position();
           dropdown.css({"position":"absolute", "left": p.left+"px", "top":p.top+$(this).height()+1+"px" });
-
-          // Can't refactor those two lines out: open dropdowns refuse to close upon label click. (NFI).
           if (dropdown.is(":visible")) {
             methods.close_all();
           } else {
@@ -127,7 +125,7 @@ selectn_unique_select_id_counter = 1;
       });
     },
 
-    // Nuke the selectors
+    // Nuke the selectors, useful if you want to redraw
     destroy : function(context) { 
       $(".selectn-label",context).remove();
       $(".selectn-dropdown",context).remove();
