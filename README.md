@@ -6,6 +6,7 @@ jQuery plugin to convert select dropdowns (multiple=true) into dropdowns of chec
 Usage:
 
     <link rel="stylesheet" type="text/css" href="jquery.selectn.css">
+    <script type="text/javascript" src="jquery.1.8.3.js">
     <script type="text/javascript" src="jquery.selectn.js">
     <script type="text/javascript">
       $(document).ready(function() {
