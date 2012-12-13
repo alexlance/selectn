@@ -25,6 +25,8 @@
   display:none;
   text-align:left;
   max-width:500px;
+  max-height:500px;
+  overflow-y:auto;
 }
 .selectn-dropdown label {
   display:block;
