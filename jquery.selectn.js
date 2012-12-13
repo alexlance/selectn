@@ -68,25 +68,19 @@ selectn_unique_select_id_counter = 1;
         // Listen for the all, none, or invert, buttons to be pressed
         $(".selectn-button",dropdown).click(function(){
           if ($(this).attr("name") == "all") {
-            $(".selectn-cb",dropdown).each(function(){
-              if ($(this).is(":visible")) {
-                $(this).attr("checked",true);
-                $(this).trigger('change');
-              }
+            $(".selectn-cb:visible",dropdown).each(function(){
+              $(this).attr("checked",true);
+              $(this).trigger('change');
             });
           } else if ($(this).attr("name") == "none") {
-            $(".selectn-cb",dropdown).each(function(){
-              if ($(this).is(":visible")) {
-                $(this).attr("checked",false);
-                $(this).trigger('change');
-              }
+            $(".selectn-cb:visible",dropdown).each(function(){
+              $(this).attr("checked",false);
+              $(this).trigger('change');
             });
           } else if ($(this).attr("name") == "invert") {
-            $(".selectn-cb",dropdown).each(function(){
-              if ($(this).is(":visible")) {
-                $(this).attr("checked",!$(this).is(':checked'));
-                $(this).trigger('change');
-              }
+            $(".selectn-cb:visible",dropdown).each(function(){
+              $(this).attr("checked",!$(this).is(':checked'));
+              $(this).trigger('change');
             });
           }
         });
