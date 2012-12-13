@@ -23,17 +23,23 @@ selectn_unique_select_id_counter = 1;
         methods.set_label(label, select);
         select.parent().append(label);
 
-        // Three extra buttons for: all, none, and invert
+        // Three extra buttons for: all, none, and invert, and a search field
         var op_all = $("<button/>",{"name":"all",   "type":"button","class":"selectn-button"}).text("all").get(0).outerHTML;
         var op_non = $("<button/>",{"name":"none",  "type":"button","class":"selectn-button"}).text("none").get(0).outerHTML;
         var op_inv = $("<button/>",{"name":"invert","type":"button","class":"selectn-button"}).text("toggle").get(0).outerHTML;
+        var op_sea = $("<input/>", {"name":"search","type":"text", "class":"selectn-search corner"}).get(0).outerHTML;
 
         // Gather up all the options from the <select> dropdown
         var dropdown_ops = [];
-        dropdown_ops[dropdown_ops.length] = "<div style='margin:4px;'>"+op_all+" "+op_non+" "+op_inv+"</div>";
+        dropdown_ops[dropdown_ops.length] = "<div class='selectn-buttons'>"+op_all+" "+op_non+" "+op_inv+" "+op_sea+"</div>";
         select.find("option").each(function(i, option){ 
+          var hili = '';
+          if ($(option).attr("selected")) {
+            hili = ' selectn-cb-selected';
+          }
           var cb_ops = {"type":"checkbox", "value":$(option).val(), "class":"selectn-cb", "checked":$(option).attr("selected")};
-          dropdown_ops[dropdown_ops.length] = "<label>"+$("<input/>",cb_ops).get(0).outerHTML+" "+$(option).text().trim()+"</label>";
+          dropdown_ops[dropdown_ops.length] = "<label class=\""+hili+"\">"+$("<input/>",cb_ops).get(0).outerHTML+
+                                              " <span>"+$(option).text().trim()+"</span></label>";
         });
       
         // Create a dropdown box, that has selectable checkboxes in it
@@ -55,6 +61,7 @@ selectn_unique_select_id_counter = 1;
             $(this).addClass("selectn-active");
             dropdown.addClass("selectn-active");
             dropdown.show();
+            $(".selectn-search",dropdown).focus();
           }
         });
 
@@ -62,34 +69,64 @@ selectn_unique_select_id_counter = 1;
         $(".selectn-button",dropdown).click(function(){
           if ($(this).attr("name") == "all") {
             $(".selectn-cb",dropdown).each(function(){
-              $(this).attr("checked",true);
-              $(this).trigger('change');
+              if ($(this).is(":visible")) {
+                $(this).attr("checked",true);
+                $(this).trigger('change');
+              }
             });
           } else if ($(this).attr("name") == "none") {
             $(".selectn-cb",dropdown).each(function(){
-              $(this).attr("checked",false);
-              $(this).trigger('change');
+              if ($(this).is(":visible")) {
+                $(this).attr("checked",false);
+                $(this).trigger('change');
+              }
             });
           } else if ($(this).attr("name") == "invert") {
             $(".selectn-cb",dropdown).each(function(){
-              $(this).attr("checked",!$(this).is(':checked'));
-              $(this).trigger('change');
+              if ($(this).is(":visible")) {
+                $(this).attr("checked",!$(this).is(':checked'));
+                $(this).trigger('change');
+              }
+            });
+          }
+        });
+
+        // Listen for text typed into the search input
+        $(".selectn-search",dropdown).keyup(function(e){
+          var needle = $(this).val();
+          if (needle == "") {
+            $("label",dropdown).show();
+          } else {
+            $("label",dropdown).each(function(){
+              if ($(this).children("span").html().toLowerCase().indexOf(needle.toLowerCase()) >= 0) {
+                $(this).show();
+              } else {
+                $(this).hide();
+              }
             });
           }
         });
 
         // When the checkboxes are clicked, update the original <select> (which is hidden, but still submitted).
+        var timeout;
         $(".selectn-cb",dropdown).change(function(e){
-          setTimeout(function(){
+          var cb = $(this);
+          if (timeout) {
+            clearTimeout(timeout);
+          }
+          timeout = setTimeout(function(){
             var ops = [];
             $(".selectn-cb",dropdown).each(function(){
               if ($(this).attr("checked")) {
+                $(this).parent().addClass("selectn-cb-selected");
                 ops.push($(this).val());
+              } else {
+                $(this).parent().removeClass("selectn-cb-selected");
               }
             });
             select.val(ops);
             methods.set_label(label,select);
-          },1);
+          },20);
         });
 
         // Hide the original <select> dropdown.
@@ -121,6 +158,8 @@ selectn_unique_select_id_counter = 1;
         $(this).removeClass("selectn-active"); 
         dropdown.removeClass("selectn-active");
         dropdown.hide();
+        $("label",dropdown).show(); // restore entries that might have been hidden by a search
+        $(".selectn-search",dropdown).val('');
         $(this).trigger("selectn-closed",{"label":$(this), "dropdown":dropdown, "select":select});
       });
     },
