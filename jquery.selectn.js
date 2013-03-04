@@ -1,4 +1,4 @@
-selectn_unique_select_id_counter = 1;
+var selectn_unique_select_id_counter = 1;
 ;(function($) {
   var methods = {
 
@@ -27,19 +27,15 @@ selectn_unique_select_id_counter = 1;
         var op_all = $("<button/>",{"name":"all",   "type":"button","class":"selectn-button"}).text("all").get(0).outerHTML;
         var op_non = $("<button/>",{"name":"none",  "type":"button","class":"selectn-button"}).text("none").get(0).outerHTML;
         var op_inv = $("<button/>",{"name":"invert","type":"button","class":"selectn-button"}).text("toggle").get(0).outerHTML;
-        var op_sea = $("<input/>", {"name":"search","type":"text", "class":"selectn-search corner"}).get(0).outerHTML;
+        var op_sea = $("<input/>", {"name":"search","type":"text",  "class":"selectn-search"}).get(0).outerHTML;
 
         // Gather up all the options from the <select> dropdown
         var dropdown_ops = [];
         dropdown_ops[dropdown_ops.length] = "<div class='selectn-buttons'>"+op_all+" "+op_non+" "+op_inv+" "+op_sea+"</div>";
         select.find("option").each(function(i, option){ 
-          var hili = '';
-          if ($(option).attr("selected")) {
-            hili = ' selectn-cb-selected';
-          }
           var cb_ops = {"type":"checkbox", "value":$(option).val(), "class":"selectn-cb", "checked":$(option).attr("selected")};
-          dropdown_ops[dropdown_ops.length] = "<label class=\""+hili+"\">"+$("<input/>",cb_ops).get(0).outerHTML+
-                                              " <span>"+$(option).text().trim()+"</span></label>";
+          dropdown_ops[dropdown_ops.length] = "<label class='"+($(option).attr("selected")?"selectn-cb-selected":"")+"'>"+
+                                              $("<input/>",cb_ops).get(0).outerHTML+" <span>"+$(option).html().trim()+"</span></label>";
         });
       
         // Create a dropdown box, that has selectable checkboxes in it
@@ -69,17 +65,17 @@ selectn_unique_select_id_counter = 1;
         $(".selectn-button",dropdown).click(function(){
           if ($(this).attr("name") == "all") {
             $(".selectn-cb:visible",dropdown).each(function(){
-              $(this).attr("checked",true);
+              $(this).prop("checked",true);
               $(this).trigger('change');
             });
           } else if ($(this).attr("name") == "none") {
             $(".selectn-cb:visible",dropdown).each(function(){
-              $(this).attr("checked",false);
+              $(this).prop("checked",false);
               $(this).trigger('change');
             });
           } else if ($(this).attr("name") == "invert") {
             $(".selectn-cb:visible",dropdown).each(function(){
-              $(this).attr("checked",!$(this).is(':checked'));
+              $(this).prop("checked",!$(this).is(':checked'));
               $(this).trigger('change');
             });
           }
@@ -88,14 +84,18 @@ selectn_unique_select_id_counter = 1;
         // Listen for text typed into the search input
         $(".selectn-search",dropdown).keyup(function(e){
           var needle = $(this).val();
+          if (needle.substring(0,1) == "!") { // negate the pattern if leading !
+            needle = needle.substring(1, needle.length);
+            var negate = 1;
+          }
           if (needle == "") {
             $("label",dropdown).show();
           } else {
             $("label",dropdown).each(function(){
               if ($(this).children("span").html().toLowerCase().indexOf(needle.toLowerCase()) >= 0) {
-                $(this).show();
+                negate? $(this).hide() : $(this).show();
               } else {
-                $(this).hide();
+                negate? $(this).show() : $(this).hide();
               }
             });
           }
@@ -111,7 +111,7 @@ selectn_unique_select_id_counter = 1;
           timeout = setTimeout(function(){
             var ops = [];
             $(".selectn-cb",dropdown).each(function(){
-              if ($(this).attr("checked")) {
+              if ($(this).is(":checked")) {
                 $(this).parent().addClass("selectn-cb-selected");
                 ops.push($(this).val());
               } else {
